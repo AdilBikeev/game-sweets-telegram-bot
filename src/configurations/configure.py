@@ -3,7 +3,11 @@ import logging
 import configurations.environments as env
 from dotenv import load_dotenv
 from pathlib import Path
-from telegram.ext import ApplicationBuilder, CommandHandler, Application
+import telebot
+import message_handlers.start_game_message_handler as start_game_message_handler
+from telebot import TeleBot
+
+import private.storage as storage
 
 def add_env():
     '''
@@ -22,27 +26,21 @@ def add_logging():
     '''
     Добавляет настройки логирования
     '''
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO
-    )
-
-def add_commands(application: Application):
-    '''
-    Добавляет команды для телеграм бота
-    '''
-    from commands.entry import commands
-
-    for command_name in commands:
-        application.add_handler(
-            CommandHandler(command_name, commands[command_name]['command_handler'])
-        )
+    telebot.logger.setLevel(logging.INFO)
 
 
 def add_telegram_bot():
     '''
     Добавляет телеграм-бота
     '''
-    application = ApplicationBuilder().token(env.items['telegram_bot_token']).build()
-    add_commands(application)
-    application.run_polling()
+    
+    bot = telebot.TeleBot(env.items['telegram_bot_token'])
+    add_message_handlers(bot)
+    bot.skip_pending = True
+    bot.polling()
+
+def add_message_handlers(bot: TeleBot):
+    """
+    Добавляет обработчики входящих сообщений для телеграм бота
+    """
+    start_game_message_handler.init(bot)

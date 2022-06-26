@@ -1,3 +1,4 @@
+from telebot import TeleBot
 from startup import startup
 
 if __name__ == '__main__':

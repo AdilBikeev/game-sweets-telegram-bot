@@ -1,6 +1,5 @@
 import configurations.configure as cfg
 
-
 def startup():
     """
     Configure the application.
